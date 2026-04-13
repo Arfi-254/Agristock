@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartLivestock</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    :root {
+      --green: #2e7d32;
+      --light-green: #4caf50;
+      --dark: #1b1b1b;
+      --gray: #757575;
+      --light: #f5f5f5;
+      --white: #fff;
+      --red: #c62828;
+      --orange: #e65100;
+      --blue: #1565c0;
+      --border: #ddd;
+      --sidebar: 220px;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* LOGIN */
+    #loginPage {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--green);
+    }
+
+    .login-box {
+      background: #fff;
+      border-radius: 10px;
+      padding: 40px;
+      width: 380px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+
+    .login-box h1 { 
+        font-size: 24px;
+         margin-bottom: 4px;
+          color: var(--green);
+         }
+    .login-box p { 
+        color: var(--gray);
+         font-size: 13px; 
+         margin-bottom: 28px; 
+        }
+    .login-box label { 
+        display: block; 
+        font-size: 12px; 
+        font-weight: 600;
+         color: var(--gray);
+          margin-bottom: 5px;
+           text-transform: uppercase;
+         }
+    .login-box input {
+         width: 100%; 
+         padding: 10px 12px;
+          border: 1px solid var(--border); 
+          border-radius: 6px;
+           font-size: 14px;
+            margin-bottom: 16px; 
+            outline: none;
+         }
+    .login-box input:focus {
+         border-color: var(--green);
+         }
+
+    .login-err { 
+        background: #ffebee;
+         color: var(--red);
+          padding: 10px;
+           border-radius: 6px;
+           font-size: 13px; 
+           margin-bottom: 14px; 
+           display: none; 
+        }
+
+    /* APP SHELL */
+    #appShell { 
+        display: none;
+         min-height: 100vh;
+         }
+
+    .sidebar { 
+        position: fixed;
+         top: 0;
+          left: 0;
+          bottom: 0;
+           width: var(--sidebar); 
+           background: var(--dark);
+            display: flex; 
+            flex-direction: column;
+             z-index: 100;
+             }
+    .sidebar-brand { 
+        padding: 20px 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        font-size: 18px;
+        font-weight: 700;
+        color: #fff;
+         }
+    .sidebar-brand span {
+         color: var(--light-green);
+         }
+    .sidebar-nav { 
+        flex: 1;
+         padding: 12px 8px;
+         display: flex; 
+         flex-direction: column;
+          gap: 2px; 
+        }
+
+    .nav-item {
+         display: flex; 
+         align-items: center; 
+         gap: 10px;
+         padding: 10px 12px; 
+         border-radius: 8px; 
+         color: rgba(255,255,255,0.6); 
+         cursor: pointer;
+         font-size: 14px; 
+         transition: all 0.15s; 
+         user-select: none; 
+        }
+    .nav-item:hover {
+         background: rgba(255,255,255,0.07); 
+         color: #fff; 
+        }
+    .nav-item.active {
+         background: var(--green); 
+         color: #fff; 
+        }
+    .nav-icon { 
+        font-size: 17px; 
+        width: 20px; 
+        text-align: center;
+     }
+    .nav-badge {
+         margin-left: auto; 
+         background: var(--red); 
+         color: #fff; 
+         font-size: 10px; 
+         padding: 1px 6px; 
+         border-radius: 10px; 
+         font-weight: 700; 
+        }
+
+    .sidebar-user { 
+        padding: 14px 16px; 
+        border-top: 1px solid rgba(255,255,255,0.08); 
+        display: flex; 
+        align-items: center; 
+        gap: 10px; 
+    }
+    .user-av { 
+        width: 34px; 
+        height: 34px; 
+        border-radius: 50%; 
+        background: var(--green); 
+        color: #fff; 
+        font-weight: 700; 
+        font-size: 13px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+     }
+    .user-name { 
+        color: rgba(255,255,255,0.85); 
+        font-size: 13px; 
+        font-weight: 600;
+     }
+    .user-role { 
+        color: rgba(255,255,255,0.4); 
+        font-size: 11px; }
+
+    .main { 
+        margin-left: var(--sidebar);
+         min-height: 100vh; 
+    }
+
+    .topbar { 
+        background: #fff; 
+        border-bottom: 1px solid var(--border); 
+        padding: 14px 28px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; 
+        position: sticky; 
+        top: 0; 
+        z-index: 50; 
+    }
+    .topbar h1 { 
+        font-size: 20px; 
+    }
+    .topbar p { 
+        font-size: 12px; 
+        color: var(--gray); 
+        margin-top: 2px; 
+    }
+    .topbar-right {
+         display: flex; 
+         gap: 10px; 
+         align-items: center; 
+        }
+
+    .content { 
+        padding: 24px 28px; 
+    }
+
+    /* BUTTONS */
+    .btn { 
+        display: inline-flex; 
+        align-items: center;
+         gap: 6px; padding: 9px 18px; 
+         border-radius: 6px; font-size: 13px; 
+         font-weight: 600;
+          cursor: pointer;
+           border: none; 
+           transition: opacity 0.15s; 
+        }
+    .btn:hover { 
+        opacity: 0.85;
+     }
+    .btn-green {
+         background: var(--green); 
+         color: #fff; 
+        }
+    .btn-gray  { 
+        background: #eee; 
+        color: #333; 
+        border: 1px solid var(--border); 
+    }
+    .btn-red   { 
+        background: var(--red); 
+        color: #fff; 
+    }
+    .btn-sm    { 
+        padding: 5px 12px; 
+        font-size: 12px;
+     }
+
+    /* STATS */
+    .stats-row { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+        gap: 16px;
+         margin-bottom: 24px;
+         }
+    .stat { 
+        background: #fff; 
+        border-radius: 8px; 
+        padding: 18px 20px; 
+        border: 1px solid var(--border); 
+        border-left: 4px solid var(--green);
+     }
+    .stat-num { 
+        font-size: 28px; 
+        font-weight: 700; 
+        color: var(--dark);
+     }
+    .stat-lbl {
+         font-size: 11px; 
+         color: var(--gray); 
+         text-transform: uppercase; 
+         margin-top: 4px; 
+        }
+    .stat-ch  { 
+        font-size: 11px;
+         margin-top: 6px; 
+        font-weight: 600;
+     }
+    .up   { 
+        color: var(--light-green); 
+    }
+    .down { 
+        color: var(--red); 
+    }
+
+    /* CARD */
+    .card {
+         background: #fff;
+          border-radius: 8px;
+           border: 1px solid var(--border);
+            overflow: hidden; 
+            margin-bottom: 20px;
+         }
+    .card-head {
+         padding: 14px 18px; 
+         border-bottom: 1px solid var(--border);
+          display: flex; 
+          align-items: center; 
+          justify-content: space-between;
+           font-weight: 700; 
+           font-size: 15px;
+         }
+    .card-body {
+         padding: 18px;
+         }
+
+    /* TABLE */
+    .tbl-wrap {
+         overflow-x: auto;
+     }
+    table {
+         width: 100%; 
+        border-collapse: collapse;
+     }
+    thead th { 
+        background: #f9f9f9; 
+        font-size: 11px; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        color: var(--gray); 
+        padding: 10px 14px; 
+        text-align: left; 
+        border-bottom: 1px solid var(--border);
+     }
+    tbody tr { 
+        border-bottom: 1px solid #f0f0f0; 
+        transition: background 0.1s;
+     }
+    tbody tr:hover {
+         background: #f9fff9;
+         }
+    tbody tr:last-child {
+         border-bottom: none; 
+        }
+    tbody td { 
+        padding: 12px 14px; 
+        font-size: 13px; 
+        vertical-align: middle; 
+    }
+
+    /* BADGE */
+    .badge { 
+        display: inline-block; 
+        padding: 3px 9px; 
+        border-radius: 12px; 
+        font-size: 11px; 
+        font-weight: 700; 
+    }
+    .b-green  { 
+        background: #e8f5e9; 
+        color: #2e7d32; 
+    }
+    .b-red    {
+         background: #ffebee; 
+        color: #c62828; 
+    }
+    .b-orange {
+         background: #fff3e0;
+         color: #e65100;
+     }
+    .b-blue   {
+         background: #e3f2fd; 
+        color: #1565c0;
+     }
+    .b-gray   { 
+        background: #f5f5f5; 
+        color: #757575; 
+    }
+
+    .filter-bar { 
+        display: flex;
+         gap: 10px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+          align-items: center; 
+        }
+    .filter-bar input, .filter-bar select { 
+        padding: 8px 12px; 
+        border: 1px solid var(--border);
+         border-radius: 6px;
+          font-size: 13px;
+           outline: none;
+         }
+    .filter-bar input {
+         flex: 1; min-width: 180px;
+         }
+    .filter-bar input:focus { 
+        border-color: var(--green); 
+    }
+
+    /* MODAL */
+    .overlay {
+         position: fixed; 
+         inset: 0;
+          background: rgba(0,0,0,0.45); 
+          z-index: 200; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          opacity: 0; 
+          pointer-events: none; 
+          transition: opacity 0.2s; 
+        }
+    .overlay.open {
+         opacity: 1; 
+         pointer-events: all; 
+        }
+    .modal {
+         background: #fff; 
+         border-radius: 10px; 
+         width: 520px; 
+         max-width: 96vw;
+          max-height: 90vh; 
+          overflow-y: auto; 
+          box-shadow: 0 8px 40px rgba(0,0,0,0.2); 
+          transform: translateY(16px); 
+          transition: transform 0.2s; 
+        }
+    .overlay.open .modal {
+         transform: translateY(0); 
+    }
+    .modal-head { 
+        padding: 20px 22px; 
+        border-bottom: 1px solid var(--border); 
+        display: flex; 
+        align-items: center; 
+        justify-content: space-between; 
+        font-size: 17px; 
+        font-weight: 700; 
+    }
+    .modal-close { 
+        background: #eee; 
+        border: none; 
+        border-radius: 6px; 
+        width: 30px; 
+        height: 30px; 
+        cursor: pointer; 
+        font-size: 16px; 
+    }
+    .modal-body { 
+        padding: 22px; 
+    }
+    .modal-foot { 
+        padding: 14px 22px; 
+        border-top: 1px solid var(--border); 
+        display: flex; 
+        justify-content: flex-end;
+         gap: 8px;
+         }
+
+    .form-row { 
+        display: grid;
+         grid-template-columns: 1fr 1fr;
+          gap: 14px; 
+        }
+    .form-group {
+         margin-bottom: 14px; 
+        }
+    .form-group label {
+         display: block; 
+         font-size: 11px; 
+         font-weight: 700; 
+         color: var(--gray); 
+         text-transform: uppercase; margin-bottom: 5px;
+         }
+    .form-group input, .form-group select, .form-group textarea { 
+        width: 100%; padding: 9px 11px; 
+        border: 1px solid var(--border); 
+        border-radius: 6px; 
+        font-size: 13px; 
+        outline: none; 
+        font-family: Arial, sans-serif;
+     }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { 
+        border-color: var(--green);
+     }
+
+    /* ALERT */
+    .alert { padding: 12px 16px; 
+        border-radius: 8px;
+         font-size: 13px; 
+         margin-bottom: 16px; 
+         display: flex; gap: 10px; 
+         align-items: flex-start;
+         }
+    .alert-warn {
+         background: #fff8e1; 
+         border: 1px solid #ffe082;
+          color: #795548;
+         }
+    .alert-ok   {
+         background: #e8f5e9; 
+         border: 1px solid #a5d6a7;
+          color: #2e7d32; 
+        }
+    .alert-err  {
+         background: #ffebee; 
+         border: 1px solid #ef9a9a; 
+         color: #c62828; 
+        }
+
+    /* ANIMAL GRID */
+    .animal-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill,
+         minmax(220px, 1fr)); 
+         gap: 14px; 
+        }
+    .a-card { 
+        background: #fff; 
+        border: 1px solid var(--border); 
+        border-radius: 8px; 
+        overflow: hidden;
+     }
+    .a-card-top {
+         background: #f5f5f5; 
+         padding: 18px; 
+         text-align: center; 
+         font-size: 40px; 
+         position: relative; 
+        }
+    .a-dot {
+         position: absolute; 
+         top: 10px; 
+         right: 10px; 
+         width: 9px; 
+         height: 9px; 
+         border-radius: 50%;
+          border: 2px solid #fff; 
+        }
+    .a-dot.h {
+         background: var(--light-green);
+         }
+    .a-dot.s {
+         background: var(--red); 
+        }
+    .a-dot.t {
+         background: var(--orange);
+     }
+    .a-card-body { 
+        padding: 12px 14px;
+     }
+    .a-name {
+         font-weight: 700; 
+         font-size: 14px; 
+        }
+    .a-id   { 
+        font-size: 11px; 
+        color: var(--gray);
+     }
+    .a-meta {
+         display: grid; 
+         grid-template-columns: 1fr 1fr;
+          gap: 8px; margin-top: 10px; 
+          padding-top: 10px; 
+          border-top: 1px solid #f0f0f0; 
+          font-size: 11px;
+         }
+    .a-meta-v {
+         font-weight: 700; 
+         font-size: 12px;
+          margin-top: 1px; 
+        }
+    .a-card-foot { 
+        padding: 10px 14px; 
+        background: #fafafa; 
+        display: flex; 
+        gap: 6px;
+     }
+
+    /* TABS */
+    .tabs { display: flex; gap: 4px; 
+        background: #eee; 
+        padding: 3px; 
+        border-radius: 8px; 
+        width: fit-content; 
+        margin-bottom: 16px; 
+    }
+    .tab { 
+        padding: 6px 14px; 
+        border-radius: 6px; 
+        font-size: 12px;
+         font-weight: 600; 
+         cursor: pointer; 
+         border: none;
+          background: transparent;
+           color: var(--gray); 
+           transition: all 0.15s;
+         }
+    .tab.active {
+         background: #fff; 
+         color: var(--dark); 
+         box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+         }
+
+    .view-toggle { 
+        display: flex; 
+        background: #eee; 
+        padding: 3px; 
+        border-radius: 6px; 
+        gap: 2px; 
+    }
+    .vbtn { 
+        padding: 5px 10px; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer; 
+        background: transparent; 
+        font-size: 14px; 
+        color: var(--gray);
+     }
+    .vbtn.active { 
+        background: #fff; 
+        color: var(--dark); 
+    }
+
+    /* PROGRESS */
+    .prog {
+         height: 5px; 
+         background: #eee; 
+         border-radius: 5px; 
+         overflow: hidden; 
+         margin-top: 5px; 
+        }
+    .prog-fill {
+         height: 100%; 
+        background: var(--green); 
+        border-radius: 5px; 
+    }
+
+    @media (max-width: 700px) {
+      .sidebar { width: 180px; }
+      .main { margin-left: 180px; }
+      .content { padding: 16px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage">
+  <div class="login-box">
+    <h1>SmartLivestock</h1>
+    <p>Sign in to manage your farm</p>
+    <div class="login-err" id="loginErr"> Wrong email or password. Use: admin@farm.com / password</div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="lEmail" value="admin@farm.com" placeholder="admin@farm.com" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="lPass" value="password" placeholder="••••••••" />
+    </div>
+    <button class="btn btn-green" style="width:100%;justify-content:center;padding:12px;" onclick="doLogin()">Sign In →</button>
+    <p style="text-align:center;margin-top:14px;font-size:12px;color:#aaa;">Credentials are pre-filled </p>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="appShell">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand"> <span>Smart</span>Livestock</div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="goTo('dashboard')"><span class="nav-icon"></span> Dashboard</div>
+      <div class="nav-item" onclick="goTo('animals')"><span class="nav-icon"></span> Animals <span class="nav-badge" id="animalCount">12</span></div>
+      <div class="nav-item" onclick="goTo('health')"><span class="nav-icon"></span> Health <span class="nav-badge">5</span></div>
+      <div class="nav-item" onclick="goTo('production')"><span class="nav-icon"></span> Production</div>
+      <div class="nav-item" onclick="goTo('finance')"><span class="nav-icon"></span> Finance</div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-av">AM</div>
+      <div>
+        <div class="user-name">ARFI MOHAMUD</div>
+        <div class="user-role">Farm Manager</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSubtitle">Farm overview</p>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-gray btn-sm" id="topActionBtn" onclick="topAction()">+ Add Animal</button>
+        <button class="btn btn-red btn-sm" onclick="doLogout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="pg-dashboard" class="page active">
+        <div class="alert alert-warn">
+           <div><strong>5 animals need attention</strong> — Check health records for overdue vaccinations.
+          <span style="color:var(--orange);cursor:pointer;font-weight:700;" onclick="goTo('health')"> View →</span></div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat" style="border-left-color:#2e7d32"><div class="stat-num">247</div><div class="stat-lbl">Total Animals</div><div class="stat-ch up">↑ 12 this month</div></div>
+          <div class="stat" style="border-left-color:#1565c0"><div class="stat-num">1,840</div><div class="stat-lbl">Litres Milk/Day</div><div class="stat-ch up">↑ 5.2%</div></div>
+          <div class="stat" style="border-left-color:#e65100"><div class="stat-num">4,320</div><div class="stat-lbl">Eggs Today</div><div class="stat-ch down">↓ 3.1%</div></div>
+          <div class="stat" style="border-left-color:#c62828"><div class="stat-num">5</div><div class="stat-lbl">Health Alerts</div><div class="stat-ch down">↑ 2 new</div></div>
+          <div class="stat" style="border-left-color:#6a1b9a"><div class="stat-num">KSh 84k</div><div class="stat-lbl">Revenue/Week</div><div class="stat-ch up">↑ 8.7%</div></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div class="card">
+            <div class="card-head">🕐 Recent Activity</div>
+            <div class="card-body" style="padding-top:0;">
+              <div style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px;"> Vaccination — <strong>COW-047 Bessie</strong> <span style="float:right;color:#aaa;font-size:11px;">2h ago</span></div>
+              <div style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px;"> New calf born — <strong>COW-023 Daisy</strong> <span style="float:right;color:#aaa;font-size:11px;">5h ago</span></div>
+              <div style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px;"> GOAT-012 flagged sick <span style="float:right;color:#aaa;font-size:11px;">7h ago</span></div>
+              <div style="padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px;"> Feed delivery — 500kg maize bran <span style="float:right;color:#aaa;font-size:11px;">Yesterday</span></div>
+              <div style="padding:10px 0;font-size:13px;"> Milk sale: 340L — KSh 18,700 <span style="float:right;color:#aaa;font-size:11px;">Yesterday</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"> Top Producers</div>
+            <div class="card-body" style="padding-top:0;">
+              <div style="padding:10px 0;border-bottom:1px solid #f0f0f0;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;"><strong> COW-023 Daisy</strong><span style="font-weight:700;">32.4L</span></div>
+                <div class="prog"><div class="prog-fill" style="width:92%"></div></div>
+              </div>
+              <div style="padding:10px 0;border-bottom:1px solid #f0f0f0;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;"><strong> COW-011 Bella</strong><span style="font-weight:700;">28.1L</span></div>
+                <div class="prog"><div class="prog-fill" style="width:78%"></div></div>
+              </div>
+              <div style="padding:10px 0;border-bottom:1px solid #f0f0f0;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;"><strong>COW-037 Mocha</strong><span style="font-weight:700;">24.7L</span></div>
+                <div class="prog"><div class="prog-fill" style="width:65%"></div></div>
+              </div>
+              <div style="padding:10px 0;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;"><strong> COW-052 Blaze</strong><span style="font-weight:700;">21.9L</span></div>
+                <div class="prog"><div class="prog-fill" style="width:58%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANIMALS -->
+      <div id="pg-animals" class="page">
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat" style="border-left-color:#2e7d32"><div class="stat-num">85</div><div class="stat-lbl"> Cattle</div></div>
+          <div class="stat" style="border-left-color:#e65100"><div class="stat-num">120</div><div class="stat-lbl"> Poultry</div></div>
+          <div class="stat" style="border-left-color:#1565c0"><div class="stat-num">27</div><div class="stat-lbl"> Goats</div></div>
+          <div class="stat" style="border-left-color:#6a1b9a"><div class="stat-num">15</div><div class="stat-lbl"> Sheep</div></div>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="aSearch" placeholder=" Search name, ID, breed..." oninput="renderAnimals()" />
+          <select id="aType" onchange="renderAnimals()">
+            <option value="">All Types</option>
+            <option>Cattle</option><option>Poultry</option><option>Goat</option><option>Sheep</option>
+          </select>
+          <select id="aStatus" onchange="renderAnimals()">
+            <option value="">All Status</option>
+            <option>Healthy</option><option>Sick</option><option>Under Treatment</option>
+          </select>
+          <div class="view-toggle">
+            <button class="vbtn" id="vGrid" onclick="setView('grid')">grid</button>
+            <button class="vbtn active" id="vList" onclick="setView('list')">list</button>
+          </div>
+        </div>
+
+        <div id="aGridView" class="animal-grid" style="display:none;"></div>
+
+        <div class="card" id="aListView">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>ID</th><th>Name</th><th>Type</th><th>Breed</th><th>Age</th><th>Gender</th><th>Weight</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="aTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- HEALTH -->
+      <div id="pg-health" class="page">
+        <div id="healthAlerts"></div>
+
+        <div class="stats-row" style="grid-template-columns:repeat(4,1fr);">
+          <div class="stat" style="border-left-color:#c62828"><div class="stat-num">5</div><div class="stat-lbl"> Sick</div></div>
+          <div class="stat" style="border-left-color:#e65100"><div class="stat-num">8</div><div class="stat-lbl"> Treatment</div></div>
+          <div class="stat" style="border-left-color:#2e7d32"><div class="stat-num">234</div><div class="stat-lbl"> Healthy</div></div>
+          <div class="stat" style="border-left-color:#1565c0"><div class="stat-num">12</div><div class="stat-lbl"> Due</div></div>
+        </div>
+
+        <div class="tabs" id="healthTabs">
+          <button class="tab active" data-tab="all" onclick="switchHealthTab('all')">All</button>
+          <button class="tab" data-tab="Vaccination" onclick="switchHealthTab('Vaccination')"> Vaccination</button>
+          <button class="tab" data-tab="Treatment" onclick="switchHealthTab('Treatment')"> Treatment</button>
+          <button class="tab" data-tab="Check-up" onclick="switchHealthTab('Check-up')"> Check-up</button>
+        </div>
+
+        <div class="filter-bar">
+          <input type="text" id="hSearch" placeholder=" Search animal or record..." oninput="renderHealth()" />
+        </div>
+
+        <div class="card">
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>Date</th><th>Animal</th><th>Type</th><th>Description</th><th>Vet</th><th>Next Due</th><th>Cost</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="hTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCTION -->
+      <div id="pg-production" class="page">
+        <div class="stats-row">
+          <div class="stat" style="border-left-color:#1565c0"><div class="stat-num">1,840</div><div class="stat-lbl"> Milk Today (L)</div><div class="stat-ch up">↑ 5.2%</div></div>
+          <div class="stat" style="border-left-color:#e65100"><div class="stat-num">4,320</div><div class="stat-lbl"> Eggs Today</div><div class="stat-ch down">↓ 3.1%</div></div>
+          <div class="stat" style="border-left-color:#2e7d32"><div class="stat-num">12,880</div><div class="stat-lbl"> Milk This Week</div><div class="stat-ch up">↑ 8.4%</div></div>
+          <div class="stat" style="border-left-color:#6a1b9a"><div class="stat-num">30,240</div><div class="stat-lbl"> Eggs This Week</div><div class="stat-ch up">↑ 1.2%</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+             Production Log
+            <select id="pTypeFilter" onchange="renderProd()" style="font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:5px;">
+              <option value="">All Types</option>
+              <option>Milk</option><option>Eggs</option><option>Meat</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>Date</th><th>Type</th><th>Animal</th><th>Qty</th><th>Unit</th><th>Notes</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="pTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- FINANCE -->
+      <div id="pg-finance" class="page">
+        <div class="stats-row">
+          <div class="stat" style="border-left-color:#2e7d32"><div class="stat-num" id="fIncome">—</div><div class="stat-lbl"> Income (Month)</div></div>
+          <div class="stat" style="border-left-color:#c62828"><div class="stat-num" id="fExpense">—</div><div class="stat-lbl"> Expenses (Month)</div></div>
+          <div class="stat" style="border-left-color:#1565c0"><div class="stat-num" id="fProfit">—</div><div class="stat-lbl"> Net Profit</div><div class="stat-ch" id="fProfitCh"></div></div>
+          <div class="stat" style="border-left-color:#e65100"><div class="stat-num">KSh 340</div><div class="stat-lbl"> Profit/Animal</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+                Transactions
+            <select id="fTypeFilter" onchange="renderFin()" style="font-size:12px;padding:4px 8px;border:1px solid #ddd;border-radius:5px;">
+              <option value="">All</option><option>Income</option><option>Expense</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>Date</th><th>Type</th><th>Category</th><th>Description</th><th>Amount</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="fTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+
+<!-- Animal Modal -->
+<div class="overlay" id="animalModal">
+  <div class="modal">
+    <div class="modal-head"> <span id="animalModalTitle">Add Animal</span> <button class="modal-close" onclick="closeModal('animalModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Name</label><input id="aN" placeholder="e.g. Daisy" /></div>
+        <div class="form-group"><label>Tag / ID</label><input id="aI" placeholder="e.g. COW-023" /></div>
+        <div class="form-group"><label>Type</label><select id="aT"><option>Cattle</option><option>Poultry</option><option>Goat</option><option>Sheep</option></select></div>
+        <div class="form-group"><label>Breed</label><input id="aB" placeholder="e.g. Friesian" /></div>
+        <div class="form-group"><label>Date of Birth</label><input type="date" id="aD" /></div>
+        <div class="form-group"><label>Gender</label><select id="aG"><option>Female</option><option>Male</option></select></div>
+        <div class="form-group"><label>Weight (kg)</label><input type="number" id="aW" placeholder="e.g. 450" /></div>
+        <div class="form-group"><label>Status</label><select id="aSt"><option>Healthy</option><option>Sick</option><option>Under Treatment</option></select></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="aNo" rows="2" placeholder="Additional notes..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-gray" onclick="closeModal('animalModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveAnimal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Health Modal -->
+<div class="overlay" id="healthModal">
+  <div class="modal">
+    <div class="modal-head">💉 Add Health Record <button class="modal-close" onclick="closeModal('healthModal')"></button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Animal</label><input id="hA" placeholder="e.g. COW-001 Bessie" /></div>
+        <div class="form-group"><label>Type</label><select id="hT"><option>Vaccination</option><option>Treatment</option><option>Check-up</option></select></div>
+        <div class="form-group"><label>Date</label><input type="date" id="hD" /></div>
+        <div class="form-group"><label>Next Due</label><input type="date" id="hN" /></div>
+        <div class="form-group"><label>Vet / Staff</label><input id="hV" placeholder="e.g. Dr. Wanjiku" /></div>
+        <div class="form-group"><label>Cost (KSh)</label><input type="number" id="hC" placeholder="e.g. 2500" /></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="hDe" rows="2" placeholder="Vaccine name, dosage, etc."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-gray" onclick="closeModal('healthModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveHealth()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Production Modal -->
+<div class="overlay" id="prodModal">
+  <div class="modal">
+    <div class="modal-head">Log Production <button class="modal-close" onclick="closeModal('prodModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Type</label><select id="pT"><option>Milk</option><option>Eggs</option><option>Meat</option></select></div>
+        <div class="form-group"><label>Date</label><input type="date" id="pD" /></div>
+        <div class="form-group"><label>Animal / Group</label><input id="pA" placeholder="e.g. COW-002 Daisy" /></div>
+        <div class="form-group"><label>Quantity</label><input type="number" id="pQ" placeholder="e.g. 28" /></div>
+        <div class="form-group"><label>Unit</label><select id="pU"><option>Litres</option><option>Pieces</option><option>Kg</option></select></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea id="pNo" rows="2" placeholder="Any notes..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-gray" onclick="closeModal('prodModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveProd()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Finance Modal -->
+<div class="overlay" id="finModal">
+  <div class="modal">
+    <div class="modal-head"> <span id="finModalTitle">Record Transaction</span> <button class="modal-close" onclick="closeModal('finModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Type</label><select id="fT"><option>Income</option><option>Expense</option></select></div>
+        <div class="form-group"><label>Date</label><input type="date" id="fD" /></div>
+        <div class="form-group"><label>Category</label>
+          <select id="fC"><option>Milk Sales</option><option>Egg Sales</option><option>Animal Sales</option><option>Feed & Nutrition</option><option>Veterinary</option><option>Labour</option><option>Equipment</option><option>Other</option></select>
+        </div>
+        <div class="form-group"><label>Amount (KSh)</label><input type="number" id="fA" placeholder="e.g. 18700" /></div>
+      </div>
+      <div class="form-group"><label>Description</label><textarea id="fDe" rows="2" placeholder="Transaction details..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-gray" onclick="closeModal('finModal')">Cancel</button>
+      <button class="btn btn-green" onclick="saveFin()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// AUTH
+function doLogin() {
+  const e = document.getElementById('lEmail').value.trim();
+  const p = document.getElementById('lPass').value;
+  if (e === 'admin@farm.com' && p === 'password') {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('appShell').style.display = 'block';
+    renderAnimals(); renderHealth(); renderProd(); renderFin();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+    setTimeout(() => document.getElementById('loginErr').style.display = 'none', 4000);
+  }
+}
+
+function doLogout() {
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// NAVIGATION
+const pageMeta = {
+  dashboard:  { title:'Dashboard',          sub:'Farm overview',                     btn:'+ Add Animal', action: () => openModal('animalModal') },
+  animals:    { title:'Animals Registry',   sub:'Manage all livestock records',      btn:'+ Add Animal', action: () => openModal('animalModal') },
+  health:     { title:'Health Records',     sub:'Vaccinations, treatments & visits', btn:'+ Add Record', action: () => openHealthModal() },
+  production: { title:'Production',         sub:'Milk, eggs & yield tracking',       btn:'+ Log Output', action: () => openProdModal() },
+  finance:    { title:'Finance',            sub:'Income, expenses & profit',         btn:'+ Add Record', action: () => openFinModal('Income') },
+};
+
+let currentPage = 'dashboard';
+
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('pg-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item')[['dashboard','animals','health','production','finance'].indexOf(page)].classList.add('active');
+  const m = pageMeta[page];
+  document.getElementById('pageTitle').textContent = m.title;
+  document.getElementById('pageSubtitle').textContent = m.sub;
+  document.getElementById('topActionBtn').textContent = m.btn;
+  currentPage = page;
+  if (page === 'finance') renderFin();
+}
+
+function topAction() { pageMeta[currentPage].action(); }
+
+// MODALS
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// ANIMALS
+let animals = JSON.parse(localStorage.getItem('slm_animals') || 'null') || [
+  { id:'COW-001', name:'Bessie',  type:'Cattle',  breed:'Friesian', dob:'2018-03-12', gender:'Female', weight:480, status:'Healthy',         notes:'' },
+  { id:'COW-002', name:'Daisy',   type:'Cattle',  breed:'Jersey',   dob:'2019-07-22', gender:'Female', weight:430, status:'Healthy',         notes:'Top producer' },
+  { id:'COW-003', name:'Duke',    type:'Cattle',  breed:'Hereford', dob:'2017-11-05', gender:'Male',   weight:620, status:'Healthy',         notes:'Breeding bull' },
+  { id:'COW-004', name:'Blaze',   type:'Cattle',  breed:'Ayrshire', dob:'2021-01-30', gender:'Female', weight:390, status:'Under Treatment', notes:'FMD check' },
+  { id:'COW-005', name:'Mocha',   type:'Cattle',  breed:'Friesian', dob:'2020-09-14', gender:'Female', weight:450, status:'Healthy',         notes:'' },
+  { id:'GOA-001', name:'Billy',   type:'Goat',    breed:'Boer',     dob:'2021-06-18', gender:'Male',   weight:85,  status:'Healthy',         notes:'' },
+  { id:'GOA-002', name:'Nanny',   type:'Goat',    breed:'Boer',     dob:'2021-06-20', gender:'Female', weight:72,  status:'Sick',            notes:'Respiratory symptoms' },
+  { id:'GOA-003', name:'Skip',    type:'Goat',    breed:'Kiko',     dob:'2022-02-08', gender:'Male',   weight:68,  status:'Healthy',         notes:'' },
+  { id:'SHE-001', name:'Woolly',  type:'Sheep',   breed:'Dorper',   dob:'2020-11-11', gender:'Female', weight:55,  status:'Healthy',         notes:'' },
+  { id:'SHE-002', name:'Lamb',    type:'Sheep',   breed:'Merino',   dob:'2023-04-02', gender:'Male',   weight:32,  status:'Healthy',         notes:'Young' },
+  { id:'CHK-001', name:'Batch A', type:'Poultry', breed:'Broiler',  dob:'2024-01-10', gender:'Female', weight:2.8, status:'Healthy',         notes:'30 birds' },
+  { id:'CHK-002', name:'Batch B', type:'Poultry', breed:'Layer',    dob:'2023-09-05', gender:'Female', weight:1.9, status:'Healthy',         notes:'40 layers' },
+];
+
+const EMOJI = { Cattle:'', Poultry:'', Goat:'', Sheep:'' };
+const SDOT  = { Healthy:'h', Sick:'s', 'Under Treatment':'t' };
+
+function saveAnimals() { localStorage.setItem('slm_animals', JSON.stringify(animals)); }
+
+function getAge(dob) {
+  const ms = Date.now() - new Date(dob).getTime();
+  const y = Math.floor(ms / (365.25*24*60*60*1000));
+  const m = Math.floor((ms % (365.25*24*60*60*1000)) / (30.44*24*60*60*1000));
+  return y > 0 ? `${y}y ${m}m` : `${m}m`;
+}
+
+function sBadge(s) {
+  const c = { Healthy:'b-green', Sick:'b-red', 'Under Treatment':'b-orange' };
+  return `<span class="badge ${c[s]||'b-gray'}">● ${s}</span>`;
+}
+
+let animalEditIdx = null;
+let animalView = 'list';
+
+function renderAnimals() {
+  const q  = (document.getElementById('aSearch')?.value || '').toLowerCase();
+  const tp = document.getElementById('aType')?.value || '';
+  const st = document.getElementById('aStatus')?.value || '';
+
+  const data = animals.filter(a =>
+    (!q  || a.name.toLowerCase().includes(q) || a.id.toLowerCase().includes(q) || a.breed.toLowerCase().includes(q)) &&
+    (!tp || a.type === tp) && (!st || a.status === st)
+  );
+
+  const tbody = document.getElementById('aTbody');
+  if (tbody) tbody.innerHTML = data.map(a => `
+    <tr>
+      <td><code style="background:#f5f5f5;padding:2px 7px;border-radius:4px;font-size:11px;">${a.id}</code></td>
+      <td><strong>${EMOJI[a.type]} ${a.name}</strong></td>
+      <td>${a.type}</td><td>${a.breed}</td><td>${getAge(a.dob)}</td>
+      <td>${a.gender}</td><td>${a.weight}kg</td><td>${sBadge(a.status)}</td>
+      <td style="display:flex;gap:5px;">
+        <button class="btn btn-gray btn-sm" onclick="editAnimal(${animals.indexOf(a)})">edit</button>
+        <button class="btn btn-red  btn-sm" onclick="delAnimal(${animals.indexOf(a)})">delete</button>
+      </td>
+    </tr>`).join('');
+
+  const grid = document.getElementById('aGridView');
+  if (grid) grid.innerHTML = data.map(a => `
+    <div class="a-card">
+      <div class="a-card-top">${EMOJI[a.type]}<div class="a-dot ${SDOT[a.status]||'h'}"></div></div>
+      <div class="a-card-body">
+        <div class="a-name">${a.name}</div>
+        <div class="a-id">${a.id} · ${a.breed}</div>
+        <div class="a-meta">
+          <div><div style="color:#888;font-size:10px;">Age</div><div class="a-meta-v">${getAge(a.dob)}</div></div>
+          <div><div style="color:#888;font-size:10px;">Weight</div><div class="a-meta-v">${a.weight}kg</div></div>
+          <div><div style="color:#888;font-size:10px;">Gender</div><div class="a-meta-v">${a.gender}</div></div>
+          <div><div style="color:#888;font-size:10px;">Status</div><div class="a-meta-v">${a.status}</div></div>
+        </div>
+      </div>
+      <div class="a-card-foot">
+        <button class="btn btn-gray btn-sm" style="flex:1;" onclick="editAnimal(${animals.indexOf(a)})">✏️ Edit</button>
+        <button class="btn btn-red btn-sm" onclick="delAnimal(${animals.indexOf(a)})">🗑</button>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('animalCount').textContent = animals.length;
+}
+
+function setView(v) {
+  animalView = v;
+  document.getElementById('aGridView').style.display = v === 'grid' ? 'grid' : 'none';
+  document.getElementById('aListView').style.display = v === 'list' ? 'block' : 'none';
+  document.getElementById('vGrid').classList.toggle('active', v === 'grid');
+  document.getElementById('vList').classList.toggle('active', v === 'list');
+}
+
+function editAnimal(i) {
+  animalEditIdx = i;
+  const a = animals[i];
+  document.getElementById('aN').value  = a.name;
+  document.getElementById('aI').value  = a.id;
+  document.getElementById('aT').value  = a.type;
+  document.getElementById('aB').value  = a.breed;
+  document.getElementById('aD').value  = a.dob;
+  document.getElementById('aG').value  = a.gender;
+  document.getElementById('aW').value  = a.weight;
+  document.getElementById('aSt').value = a.status;
+  document.getElementById('aNo').value = a.notes;
+  document.getElementById('animalModalTitle').textContent = 'Edit Animal';
+  openModal('animalModal');
+}
+
+function saveAnimal() {
+  const obj = {
+    id: document.getElementById('aI').value || 'AN-' + Date.now(),
+    name: document.getElementById('aN').value || 'Unnamed',
+    type: document.getElementById('aT').value,
+    breed: document.getElementById('aB').value,
+    dob: document.getElementById('aD').value || '2020-01-01',
+    gender: document.getElementById('aG').value,
+    weight: parseFloat(document.getElementById('aW').value) || 0,
+    status: document.getElementById('aSt').value,
+    notes: document.getElementById('aNo').value,
+  };
+  if (animalEditIdx !== null) { animals[animalEditIdx] = obj; animalEditIdx = null; }
+  else animals.unshift(obj);
+  saveAnimals(); closeModal('animalModal');
+  document.getElementById('animalModalTitle').textContent = 'Add Animal';
+  renderAnimals();
+}
+
+function delAnimal(i) {
+  if (confirm(`Delete ${animals[i].name}?`)) { animals.splice(i, 1); saveAnimals(); renderAnimals(); }
+}
+
+// HEALTH
+let health = JSON.parse(localStorage.getItem('slm_health') || 'null') || [
+  { id:1, date:'2025-02-18', animal:'COW-001 Bessie',  type:'Vaccination', desc:'FMD Vaccine annual booster',   vet:'Dr. Wanjiku', nextDue:'2026-02-18', cost:2500 },
+  { id:2, date:'2025-02-16', animal:'COW-004 Blaze',   type:'Treatment',   desc:'Foot rot — Oxytetracycline',  vet:'Dr. Wanjiku', nextDue:'2025-03-01', cost:3800 },
+  { id:3, date:'2025-02-14', animal:'GOA-002 Nanny',   type:'Check-up',    desc:'Respiratory evaluation',      vet:'Dr. Kamau',   nextDue:'2025-02-28', cost:1500 },
+  { id:4, date:'2025-02-10', animal:'COW-002 Daisy',   type:'Vaccination', desc:'Brucellosis vaccine',         vet:'Dr. Wanjiku', nextDue:'2026-02-10', cost:2200 },
+  { id:5, date:'2025-02-08', animal:'CHK-001 Batch A', type:'Treatment',   desc:'Coccidiosis — Amprolium',     vet:'Farm staff',  nextDue:'2025-02-22', cost:900  },
+  { id:6, date:'2025-02-05', animal:'SHE-001 Woolly',  type:'Check-up',    desc:'Routine — all clear',         vet:'Dr. Kamau',   nextDue:'2025-05-05', cost:800  },
+  { id:7, date:'2025-01-28', animal:'COW-003 Duke',    type:'Vaccination', desc:'Lumpy Skin Disease vaccine',  vet:'Dr. Wanjiku', nextDue:'2026-01-28', cost:3000 },
+  { id:8, date:'2025-01-20', animal:'COW-005 Mocha',   type:'Check-up',    desc:'Pre-calving check',           vet:'Dr. Kamau',   nextDue:'2025-02-10', cost:1200 },
+];
+
+let healthTab = 'all';
+const HBADGE = { Vaccination:'b-blue', Treatment:'b-orange', 'Check-up':'b-green' };
+const HICON  = { Vaccination:'', Treatment:'', 'Check-up':'' };
+
+function switchHealthTab(tab) {
+  healthTab = tab;
+  document.querySelectorAll('#healthTabs .tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  renderHealth();
+}
+
+function isDue(d) { return d && new Date(d) <= new Date(); }
+
+function renderHealth() {
+  const q = (document.getElementById('hSearch')?.value || '').toLowerCase();
+  let data = [...health].sort((a,b) => new Date(b.date)-new Date(a.date));
+  if (healthTab !== 'all') data = data.filter(r => r.type === healthTab);
+  if (q) data = data.filter(r => r.animal.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q));
+
+  const tbody = document.getElementById('hTbody');
+  if (tbody) tbody.innerHTML = data.map((r, i) => `
+    <tr>
+      <td>${r.date}</td>
+      <td><strong>${r.animal}</strong></td>
+      <td><span class="badge ${HBADGE[r.type]||'b-gray'}">${HICON[r.type]||''} ${r.type}</span></td>
+      <td style="font-size:12px;max-width:200px;">${r.desc}</td>
+      <td>${r.vet}</td>
+      <td style="font-size:12px;color:${isDue(r.nextDue)?'#c62828':'#222'};">${isDue(r.nextDue)?' ':''}${r.nextDue||'—'}</td>
+      <td>${r.cost?'KSh '+r.cost.toLocaleString():'—'}</td>
+      <td><button class="btn btn-red btn-sm" onclick="delHealth(${i})">delete</button></td>
+    </tr>`).join('');
+
+  const overdue = health.filter(r => isDue(r.nextDue));
+  const el = document.getElementById('healthAlerts');
+  if (el) el.innerHTML = overdue.length
+    ? `<div class="alert alert-err"> <div><strong>${overdue.length} overdue actions</strong> — ${overdue.map(r=>r.animal).join(', ')}</div></div>`
+    : `<div class="alert alert-ok"> All health schedules are up to date!</div>`;
+}
+
+function openHealthModal() {
+  document.getElementById('hD').value = new Date().toISOString().split('T')[0];
+  openModal('healthModal');
+}
+
+function saveHealth() {
+  health.unshift({
+    id: Date.now(),
+    date: document.getElementById('hD').value || new Date().toISOString().split('T')[0],
+    animal: document.getElementById('hA').value || 'Unknown',
+    type: document.getElementById('hT').value,
+    desc: document.getElementById('hDe').value,
+    vet: document.getElementById('hV').value,
+    nextDue: document.getElementById('hN').value,
+    cost: parseFloat(document.getElementById('hC').value) || 0,
+  });
+  localStorage.setItem('slm_health', JSON.stringify(health));
+  closeModal('healthModal'); renderHealth();
+}
+
+function delHealth(i) {
+  const sorted = [...health].sort((a,b) => new Date(b.date)-new Date(a.date));
+  const idx = health.findIndex(r => r.id === sorted[i].id);
+  if (idx > -1 && confirm('Delete this record?')) {
+    health.splice(idx, 1);
+    localStorage.setItem('slm_health', JSON.stringify(health));
+    renderHealth();
+  }
+}
+
+// PRODUCTION
+let prod = JSON.parse(localStorage.getItem('slm_prod') || 'null') || [
+  { id:1,  date:'2025-02-22', type:'Milk', animal:'COW-002 Daisy',   qty:32.4, unit:'Litres', notes:'Morning + Evening' },
+  { id:2,  date:'2025-02-22', type:'Milk', animal:'COW-011 Bella',   qty:28.1, unit:'Litres', notes:'' },
+  { id:3,  date:'2025-02-22', type:'Eggs', animal:'CHK-002 Batch B', qty:38,   unit:'Pieces', notes:'Layer flock' },
+  { id:4,  date:'2025-02-22', type:'Milk', animal:'COW-037 Mocha',   qty:24.7, unit:'Litres', notes:'' },
+  { id:5,  date:'2025-02-21', type:'Eggs', animal:'CHK-002 Batch B', qty:41,   unit:'Pieces', notes:'' },
+  { id:6,  date:'2025-02-21', type:'Milk', animal:'COW-052 Blaze',   qty:21.9, unit:'Litres', notes:'New record!' },
+  { id:7,  date:'2025-02-20', type:'Milk', animal:'COW-002 Daisy',   qty:31.8, unit:'Litres', notes:'' },
+  { id:8,  date:'2025-02-20', type:'Meat', animal:'GOA-005 (sold)',  qty:18,   unit:'Kg',     notes:'Live weight' },
+  { id:9,  date:'2025-02-19', type:'Milk', animal:'COW-011 Bella',   qty:27.5, unit:'Litres', notes:'' },
+  { id:10, date:'2025-02-19', type:'Eggs', animal:'CHK-002 Batch B', qty:36,   unit:'Pieces', notes:'' },
+];
+
+const PICON = { Milk:'', Eggs:'', Meat:'' };
+const PCLR  = { Milk:'b-blue', Eggs:'b-orange', Meat:'b-gray' };
+
+function renderProd() {
+  const tf = document.getElementById('pTypeFilter')?.value || '';
+  let data = [...prod].sort((a,b) => new Date(b.date)-new Date(a.date));
+  if (tf) data = data.filter(r => r.type === tf);
+
+  const tbody = document.getElementById('pTbody');
+  if (tbody) tbody.innerHTML = data.map((r, i) => `
+    <tr>
+      <td>${r.date}</td>
+      <td><span class="badge ${PCLR[r.type]}">${PICON[r.type]} ${r.type}</span></td>
+      <td>${r.animal}</td>
+      <td><strong>${r.qty}</strong></td>
+      <td>${r.unit}</td>
+      <td style="font-size:12px;color:#888;">${r.notes||'—'}</td>
+      <td><button class="btn btn-red btn-sm" onclick="delProd(${i})">🗑</button></td>
+    </tr>`).join('');
+}
+
+function openProdModal() {
+  document.getElementById('pD').value = new Date().toISOString().split('T')[0];
+  openModal('prodModal');
+}
+
+function saveProd() {
+  prod.unshift({
+    id: Date.now(),
+    date: document.getElementById('pD').value,
+    type: document.getElementById('pT').value,
+    animal: document.getElementById('pA').value || 'Unspecified',
+    qty: parseFloat(document.getElementById('pQ').value) || 0,
+    unit: document.getElementById('pU').value,
+    notes: document.getElementById('pNo').value,
+  });
+  localStorage.setItem('slm_prod', JSON.stringify(prod));
+  closeModal('prodModal'); renderProd();
+}
+
+function delProd(i) {
+  const sorted = [...prod].sort((a,b) => new Date(b.date)-new Date(a.date));
+  const idx = prod.findIndex(r => r.id === sorted[i].id);
+  if (idx > -1 && confirm('Delete?')) {
+    prod.splice(idx, 1);
+    localStorage.setItem('slm_prod', JSON.stringify(prod));
+    renderProd();
+  }
+}
+
+// FINANCE
+let fin = JSON.parse(localStorage.getItem('slm_fin') || 'null') || [
+  { id:1,  date:'2025-02-22', type:'Income',  cat:'Milk Sales',      desc:'Brookside Dairy 340L  KSh 55', amount:18700 },
+  { id:2,  date:'2025-02-22', type:'Expense', cat:'Feed & Nutrition', desc:'Maize bran 500kg',             amount:19000 },
+  { id:3,  date:'2025-02-21', type:'Income',  cat:'Egg Sales',        desc:'Retail 200 eggs @ KSh 20',    amount:4000  },
+  { id:4,  date:'2025-02-20', type:'Expense', cat:'Veterinary',       desc:'FMD vaccination COW-001-010', amount:25000 },
+  { id:5,  date:'2025-02-19', type:'Income',  cat:'Milk Sales',       desc:'Brookside Dairy 340L',        amount:18700 },
+  { id:6,  date:'2025-02-18', type:'Expense', cat:'Labour',           desc:'Weekly wages x 4 workers',    amount:20000 },
+  { id:7,  date:'2025-02-17', type:'Income',  cat:'Animal Sales',     desc:'2 Boer goats sold',           amount:24000 },
+  { id:8,  date:'2025-02-16', type:'Expense', cat:'Equipment',        desc:'Milking machine service',     amount:8500  },
+  { id:9,  date:'2025-02-15', type:'Income',  cat:'Milk Sales',       desc:'Brookside Dairy 340L',        amount:18700 },
+  { id:10, date:'2025-02-14', type:'Expense', cat:'Feed & Nutrition', desc:'Dairy meal 200kg',            amount:14000 },
+  { id:11, date:'2025-02-13', type:'Income',  cat:'Egg Sales',        desc:'Retail 180 eggs',             amount:3600  },
+  { id:12, date:'2025-02-12', type:'Expense', cat:'Other',            desc:'Electricity bill',            amount:4200  },
+];
+
+function fmt(n) { return 'KSh ' + Math.abs(n).toLocaleString(); }
+
+function renderFin() {
+  const tf = document.getElementById('fTypeFilter')?.value || '';
+  let data = [...fin].sort((a,b) => new Date(b.date)-new Date(a.date));
+  if (tf) data = data.filter(r => r.type === tf);
+
+  const tbody = document.getElementById('fTbody');
+  if (tbody) tbody.innerHTML = data.map((r, i) => `
+    <tr>
+      <td>${r.date}</td>
+      <td><span class="badge ${r.type==='Income'?'b-green':'b-red'}">${r.type==='Income'?'↑':'↓'} ${r.type}</span></td>
+      <td><span class="badge b-gray" style="font-size:10px;">${r.cat}</span></td>
+      <td style="font-size:12px;">${r.desc}</td>
+      <td style="font-weight:700;color:${r.type==='Income'?'#2e7d32':'#c62828'};">${r.type==='Income'?'+':'−'} ${fmt(r.amount)}</td>
+      <td><button class="btn btn-red btn-sm" onclick="delFin(${i})">🗑</button></td>
+    </tr>`).join('');
+
+  const income  = fin.filter(r=>r.type==='Income').reduce((s,r)=>s+r.amount,0);
+  const expense = fin.filter(r=>r.type==='Expense').reduce((s,r)=>s+r.amount,0);
+  const profit  = income - expense;
+
+  const iEl = document.getElementById('fIncome');
+  const eEl = document.getElementById('fExpense');
+  const pEl = document.getElementById('fProfit');
+  const cEl = document.getElementById('fProfitCh');
+  if (iEl) iEl.textContent = fmt(income);
+  if (eEl) eEl.textContent = fmt(expense);
+  if (pEl) pEl.textContent = fmt(profit);
+  if (cEl) { cEl.textContent = profit >= 0 ? ' Profitable' : ' At a loss'; cEl.className = 'stat-ch '+(profit>=0?'up':'down'); }
+}
+
+function openFinModal(type) {
+  document.getElementById('fD').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fT').value = type;
+  document.getElementById('finModalTitle').textContent = type === 'Income' ? 'Record Income' : 'Record Expense';
+  openModal('finModal');
+}
+
+function saveFin() {
+  fin.unshift({
+    id: Date.now(),
+    date: document.getElementById('fD').value,
+    type: document.getElementById('fT').value,
+    cat: document.getElementById('fC').value,
+    desc: document.getElementById('fDe').value || '—',
+    amount: parseFloat(document.getElementById('fA').value) || 0,
+  });
+  localStorage.setItem('slm_fin', JSON.stringify(fin));
+  closeModal('finModal'); renderFin();
+}
+
+function delFin(i) {
+  const sorted = [...fin].sort((a,b) => new Date(b.date)-new Date(a.date));
+  const idx = fin.findIndex(r => r.id === sorted[i].id);
+  if (idx > -1 && confirm('Delete this record?')) {
+    fin.splice(idx, 1);
+    localStorage.setItem('slm_fin', JSON.stringify(fin));
+    renderFin();
+  }
+}
+
+</script>
+</body>
+</html>
